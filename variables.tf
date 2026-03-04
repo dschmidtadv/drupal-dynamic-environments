@@ -16,30 +16,21 @@ variable "environment" {
   default     = "dev"
 }
 
-# VPC Configuration - Reference existing VPC
-variable "vpc_id" {
-  description = "Existing VPC ID to use (or leave empty to lookup by tags)"
+# VPC Configuration - Create new VPC
+variable "vpc_cidr" {
+  description = "CIDR block for VPC"
   type        = string
-  default     = ""
+  default     = "10.0.0.0/16"
 }
 
-variable "vpc_tag_name" {
-  description = "VPC tag name to lookup if vpc_id is not provided"
-  type        = string
-  default     = "main-vpc"
-}
+variable "az_count" {
+  description = "Number of availability zones to use (creates public + private subnets in each)"
+  type        = number
+  default     = 3
 
-variable "private_subnet_ids" {
-  description = "List of existing private subnet IDs (or leave empty to lookup by tags)"
-  type        = list(string)
-  default     = []
-}
-
-variable "private_subnet_tag_filter" {
-  description = "Tag filter for private subnets lookup"
-  type        = map(string)
-  default = {
-    "Type" = "private"
+  validation {
+    condition     = var.az_count >= 2 && var.az_count <= 6
+    error_message = "AZ count must be between 2 and 6 for high availability."
   }
 }
 
@@ -90,13 +81,6 @@ variable "scale_up_schedule" {
   description = "Cron expression for scale-up (default: 7 AM ET)"
   type        = string
   default     = "0 11 * * *" # 11 AM UTC (7 AM ET)
-}
-
-# IAM Configuration
-variable "ecs_instance_profile_name" {
-  description = "Name of the existing IAM instance profile provided by Cloud Team"
-  type        = string
-  default     = "ecs-host-instance-profile"
 }
 
 # Aurora Configuration

@@ -2,7 +2,7 @@
 resource "aws_security_group" "alb" {
   name_prefix = "${var.project_name}-alb-"
   description = "Security group for Application Load Balancer"
-  vpc_id      = data.aws_vpc.existing.id
+  vpc_id      = aws_vpc.main.id
 
   ingress {
     description = "Allow HTTP"
@@ -37,26 +37,13 @@ resource "aws_security_group" "alb" {
   }
 }
 
-# Get public subnets for ALB (ALB requires public subnets)
-data "aws_subnets" "public" {
-  filter {
-    name   = "vpc-id"
-    values = [data.aws_vpc.existing.id]
-  }
-
-  filter {
-    name   = "tag:Type"
-    values = ["public"]
-  }
-}
-
 # Application Load Balancer
 resource "aws_lb" "main" {
   name               = var.alb_name
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb.id]
-  subnets            = data.aws_subnets.public.ids
+  subnets            = local.public_subnet_ids
 
   enable_deletion_protection = false
   enable_http2               = true
@@ -72,7 +59,7 @@ resource "aws_lb_target_group" "default" {
   name_prefix = "def-"
   port        = 80
   protocol    = "HTTP"
-  vpc_id      = data.aws_vpc.existing.id
+  vpc_id      = aws_vpc.main.id
   target_type = "ip"
 
   health_check {
