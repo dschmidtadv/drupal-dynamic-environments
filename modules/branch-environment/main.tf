@@ -235,7 +235,7 @@ resource "aws_ecs_service" "drupal" {
 # Auto Scaling Target
 resource "aws_appautoscaling_target" "drupal" {
   max_capacity       = 5
-  min_capacity       = 1
+  min_capacity       = 0  # Allow scaling to zero when no traffic
   resource_id        = "service/${var.ecs_cluster_name}/${aws_ecs_service.drupal.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
@@ -274,6 +274,27 @@ resource "aws_appautoscaling_policy" "drupal_memory" {
     target_value       = 80.0
     scale_in_cooldown  = 300
     scale_out_cooldown = 60
+  }
+}
+
+# Auto Scaling Policy - ALB Request Count (Traffic-Based Scaling to Zero)
+resource "aws_appautoscaling_policy" "drupal_alb_requests" {
+  name               = "${local.env_identifier}-alb-requests"
+  policy_type        = "TargetTrackingScaling"
+  resource_id        = aws_appautoscaling_target.drupal.resource_id
+  scalable_dimension = aws_appautoscaling_target.drupal.scalable_dimension
+  service_namespace  = aws_appautoscaling_target.drupal.service_namespace
+
+  target_tracking_scaling_policy_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "ALBRequestCountPerTarget"
+      resource_label         = "${var.alb_arn_suffix}/${aws_lb_target_group.branch.arn_suffix}"
+    }
+    target_value = 10.0 # Target 10 requests per minute per task
+
+    # Scale in aggressively when no traffic
+    scale_in_cooldown  = 300  # 5 minutes of low traffic before scaling down
+    scale_out_cooldown = 60   # Scale out quickly when traffic arrives
   }
 }
 

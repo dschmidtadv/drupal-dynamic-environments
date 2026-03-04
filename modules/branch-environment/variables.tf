@@ -43,6 +43,11 @@ variable "alb_arn" {
   type        = string
 }
 
+variable "alb_arn_suffix" {
+  description = "ARN suffix of the Application Load Balancer (for CloudWatch metrics)"
+  type        = string
+}
+
 variable "alb_listener_arn" {
   description = "ARN of the ALB listener (HTTP or HTTPS)"
   type        = string

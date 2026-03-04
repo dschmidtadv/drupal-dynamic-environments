@@ -20,6 +20,7 @@ module "branch_uat" {
   private_subnet_ids          = local.private_subnet_ids
   ecs_hosts_security_group_id = aws_security_group.ecs_hosts.id
   alb_arn                     = aws_lb.main.arn
+  alb_arn_suffix              = aws_lb.main.arn_suffix
   alb_listener_arn            = var.certificate_arn != "" ? aws_lb_listener.https[0].arn : aws_lb_listener.http.arn
   alb_security_group_id       = aws_security_group.alb.id
   ecs_task_execution_role_arn = aws_iam_role.ecs_task_execution.arn
@@ -59,6 +60,7 @@ module "branch_feature_auth" {
   private_subnet_ids          = local.private_subnet_ids
   ecs_hosts_security_group_id = aws_security_group.ecs_hosts.id
   alb_arn                     = aws_lb.main.arn
+  alb_arn_suffix              = aws_lb.main.arn_suffix
   alb_listener_arn            = var.certificate_arn != "" ? aws_lb_listener.https[0].arn : aws_lb_listener.http.arn
   alb_security_group_id       = aws_security_group.alb.id
   ecs_task_execution_role_arn = aws_iam_role.ecs_task_execution.arn
