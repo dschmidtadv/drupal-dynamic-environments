@@ -1,0 +1,196 @@
+{
+  "name": "Drupal Dynamic Branch Environments - AWS Architecture",
+  "nodes": [
+    {
+      "id": "internet",
+      "label": "Internet Users",
+      "x": 0,
+      "y": 0,
+      "icon": "/icons/aws/general/internet.png"
+    },
+    {
+      "id": "codebuild",
+      "label": "CodeBuild",
+      "x": 1030,
+      "y": 0,
+      "subtitle": "CI/CD Pipeline",
+      "icon": "/icons/aws/devtools/codebuild.png"
+    },
+    {
+      "id": "alb",
+      "label": "Application Load Balancer",
+      "x": 1030,
+      "y": 300,
+      "subtitle": "*.review.example.gov",
+      "icon": "/icons/aws/network/elb-application-load-balancer.png"
+    },
+    {
+      "id": "s3",
+      "label": "S3 Bucket",
+      "x": 0,
+      "y": 1740,
+      "subtitle": "Drupal Files",
+      "icon": "/icons/aws/storage/s3.png"
+    },
+    {
+      "id": "secrets",
+      "label": "Secrets Manager",
+      "x": 1030,
+      "y": 1740,
+      "subtitle": "DB Credentials",
+      "icon": "/icons/aws/security/secrets-manager.png"
+    },
+    {
+      "id": "vpc",
+      "label": "VPC",
+      "x": 220,
+      "y": 600,
+      "subtitle": "Existing VPC",
+      "icon": "/icons/aws/network/vpc.png",
+      "type": "container",
+      "width": 1740,
+      "height": 990
+    },
+    {
+      "id": "public-subnet",
+      "label": "Public Subnets",
+      "x": 90,
+      "y": 90,
+      "icon": "/icons/aws/network/public-subnet.png",
+      "type": "container",
+      "width": 300,
+      "height": 280,
+      "parentId": "vpc"
+    },
+    {
+      "id": "private-subnet",
+      "label": "Private Subnets",
+      "x": 490,
+      "y": 90,
+      "icon": "/icons/aws/network/private-subnet.png",
+      "type": "container",
+      "width": 1160,
+      "height": 810,
+      "parentId": "vpc"
+    },
+    {
+      "id": "ecs-cluster",
+      "label": "ECS Cluster",
+      "x": 90,
+      "y": 90,
+      "subtitle": "drupal-dynamic-environments",
+      "icon": "/icons/aws/compute/elastic-container-service.png",
+      "type": "container",
+      "width": 520,
+      "height": 630,
+      "parentId": "private-subnet"
+    },
+    {
+      "id": "ecs-ondemand",
+      "label": "On-Demand ASG",
+      "x": 90,
+      "y": 90,
+      "subtitle": "Base Capacity",
+      "icon": "/icons/aws/compute/ec2-instances.png",
+      "parentId": "ecs-cluster"
+    },
+    {
+      "id": "ecs-spot",
+      "label": "Spot ASG",
+      "x": 310,
+      "y": 90,
+      "subtitle": "Ephemeral Workloads",
+      "icon": "/icons/aws/compute/ec2-instances.png",
+      "parentId": "ecs-cluster"
+    },
+    {
+      "id": "drupal-uat",
+      "label": "Drupal Service",
+      "x": 90,
+      "y": 390,
+      "subtitle": "uat.review.example.gov",
+      "icon": "/icons/aws/compute/elastic-container-service-service.png",
+      "parentId": "ecs-cluster"
+    },
+    {
+      "id": "drupal-feature",
+      "label": "Drupal Service",
+      "x": 310,
+      "y": 390,
+      "subtitle": "feature-*.review.example.gov",
+      "icon": "/icons/aws/compute/elastic-container-service-service.png",
+      "parentId": "ecs-cluster"
+    },
+    {
+      "id": "aurora",
+      "label": "Aurora Serverless",
+      "x": 950,
+      "y": 90,
+      "subtitle": "MySQL 8.0 (0.5-2 ACU)",
+      "icon": "/icons/aws/database/aurora.png",
+      "parentId": "private-subnet"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "source": "internet",
+      "target": "alb",
+      "label": "HTTPS"
+    },
+    {
+      "id": "e2",
+      "source": "alb",
+      "target": "drupal-uat",
+      "label": "Host: uat.*"
+    },
+    {
+      "id": "e3",
+      "source": "alb",
+      "target": "drupal-feature",
+      "label": "Host: feature-*"
+    },
+    {
+      "id": "e4",
+      "source": "drupal-uat",
+      "target": "aurora",
+      "label": "MySQL"
+    },
+    {
+      "id": "e5",
+      "source": "drupal-feature",
+      "target": "aurora",
+      "label": "MySQL"
+    },
+    {
+      "id": "e6",
+      "source": "drupal-uat",
+      "target": "s3",
+      "label": "Files"
+    },
+    {
+      "id": "e7",
+      "source": "drupal-feature",
+      "target": "s3",
+      "label": "Files"
+    },
+    {
+      "id": "e8",
+      "source": "drupal-uat",
+      "target": "secrets",
+      "label": "Credentials"
+    },
+    {
+      "id": "e9",
+      "source": "drupal-feature",
+      "target": "secrets",
+      "label": "Credentials"
+    },
+    {
+      "id": "e10",
+      "source": "codebuild",
+      "target": "ecs-cluster",
+      "label": "Deploy Branch"
+    }
+  ]
+}
