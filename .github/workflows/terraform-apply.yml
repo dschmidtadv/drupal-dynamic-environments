@@ -1,0 +1,105 @@
+name: Terraform Apply
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**.tf'
+      - '**.tfvars'
+      - '.github/workflows/terraform-apply.yml'
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to perform'
+        required: true
+        default: 'apply'
+        type: choice
+        options:
+          - apply
+          - destroy
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  terraform-apply:
+    name: Terraform Apply
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.0
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        id: plan
+        run: |
+          if [ "${{ github.event.inputs.action }}" == "destroy" ]; then
+            terraform plan -destroy -out=tfplan
+          else
+            terraform plan -out=tfplan
+          fi
+
+      - name: Terraform Apply
+        if: github.event.inputs.action != 'destroy' || github.event.inputs.action == ''
+        run: terraform apply -auto-approve tfplan
+
+      - name: Terraform Destroy
+        if: github.event.inputs.action == 'destroy'
+        run: terraform destroy -auto-approve
+
+      - name: Get Outputs
+        if: success() && github.event.inputs.action != 'destroy'
+        id: outputs
+        run: |
+          echo "alb_dns_name=$(terraform output -raw alb_dns_name)" >> $GITHUB_OUTPUT
+          echo "ecs_cluster_name=$(terraform output -raw ecs_cluster_name)" >> $GITHUB_OUTPUT
+          echo "vpc_id=$(terraform output -raw vpc_id)" >> $GITHUB_OUTPUT
+
+      - name: Create Deployment Summary
+        if: success() && github.event.inputs.action != 'destroy'
+        run: |
+          cat >> $GITHUB_STEP_SUMMARY <<EOF
+          ## Terraform Deployment Complete
+
+          ### Infrastructure Outputs
+
+          | Output | Value |
+          |--------|-------|
+          | ALB DNS Name | \`${{ steps.outputs.outputs.alb_dns_name }}\` |
+          | ECS Cluster | \`${{ steps.outputs.outputs.ecs_cluster_name }}\` |
+          | VPC ID | \`${{ steps.outputs.outputs.vpc_id }}\` |
+
+          ### DNS Configuration
+
+          Point your wildcard domain to the ALB:
+          \`\`\`
+          *.review.example.gov  CNAME  ${{ steps.outputs.outputs.alb_dns_name }}
+          \`\`\`
+
+          ### Next Steps
+
+          1. Configure DNS CNAME record
+          2. Create branch environments using the module
+          3. Monitor CloudWatch Logs for deployment status
+
+          EOF
