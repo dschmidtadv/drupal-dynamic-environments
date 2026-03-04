@@ -36,7 +36,7 @@ resource "aws_ecs_cluster_capacity_providers" "main" {
 resource "aws_security_group" "ecs_hosts" {
   name_prefix = "${var.project_name}-ecs-hosts-"
   description = "Security group for ECS container hosts"
-  vpc_id      = data.aws_vpc.existing.id
+  vpc_id      = aws_vpc.main.id
 
   # Allow traffic from ALB
   ingress {
@@ -71,7 +71,7 @@ resource "aws_launch_template" "ecs_on_demand" {
   instance_type = var.ecs_instance_type
 
   iam_instance_profile {
-    name = data.aws_iam_instance_profile.ecs_host.name
+    name = aws_iam_instance_profile.ecs_instance.name
   }
 
   vpc_security_group_ids = [aws_security_group.ecs_hosts.id]
@@ -108,7 +108,7 @@ resource "aws_launch_template" "ecs_spot" {
   instance_type = var.ecs_instance_type
 
   iam_instance_profile {
-    name = data.aws_iam_instance_profile.ecs_host.name
+    name = aws_iam_instance_profile.ecs_instance.name
   }
 
   vpc_security_group_ids = [aws_security_group.ecs_hosts.id]
@@ -150,7 +150,7 @@ resource "aws_launch_template" "ecs_spot" {
 # Auto Scaling Group for On-Demand instances
 resource "aws_autoscaling_group" "ecs_on_demand" {
   name_prefix         = "${var.project_name}-ecs-on-demand-"
-  vpc_zone_identifier = local.subnet_ids
+  vpc_zone_identifier = local.private_subnet_ids
   min_size            = 1
   max_size            = var.ecs_asg_max_size
   desired_capacity    = max(1, floor(var.ecs_asg_desired_capacity * (100 - var.spot_instance_percentage) / 100))
@@ -184,7 +184,7 @@ resource "aws_autoscaling_group" "ecs_on_demand" {
 # Auto Scaling Group for Spot instances
 resource "aws_autoscaling_group" "ecs_spot" {
   name_prefix         = "${var.project_name}-ecs-spot-"
-  vpc_zone_identifier = local.subnet_ids
+  vpc_zone_identifier = local.private_subnet_ids
   min_size            = 0
   max_size            = var.ecs_asg_max_size
   desired_capacity    = max(0, floor(var.ecs_asg_desired_capacity * var.spot_instance_percentage / 100))

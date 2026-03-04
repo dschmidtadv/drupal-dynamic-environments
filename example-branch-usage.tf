@@ -16,8 +16,8 @@ module "branch_uat" {
   project_name                = var.project_name
   ecs_cluster_id              = aws_ecs_cluster.main.id
   ecs_cluster_name            = aws_ecs_cluster.main.name
-  vpc_id                      = data.aws_vpc.existing.id
-  private_subnet_ids          = local.subnet_ids
+  vpc_id                      = aws_vpc.main.id
+  private_subnet_ids          = local.private_subnet_ids
   ecs_hosts_security_group_id = aws_security_group.ecs_hosts.id
   alb_arn                     = aws_lb.main.arn
   alb_listener_arn            = var.certificate_arn != "" ? aws_lb_listener.https[0].arn : aws_lb_listener.http.arn
@@ -55,8 +55,8 @@ module "branch_feature_auth" {
   project_name                = var.project_name
   ecs_cluster_id              = aws_ecs_cluster.main.id
   ecs_cluster_name            = aws_ecs_cluster.main.name
-  vpc_id                      = data.aws_vpc.existing.id
-  private_subnet_ids          = local.subnet_ids
+  vpc_id                      = aws_vpc.main.id
+  private_subnet_ids          = local.private_subnet_ids
   ecs_hosts_security_group_id = aws_security_group.ecs_hosts.id
   alb_arn                     = aws_lb.main.arn
   alb_listener_arn            = var.certificate_arn != "" ? aws_lb_listener.https[0].arn : aws_lb_listener.http.arn

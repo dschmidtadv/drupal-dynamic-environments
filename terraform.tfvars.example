@@ -3,31 +3,15 @@ aws_region   = "us-east-1"
 project_name = "drupal-dynamic"
 environment  = "dev"
 
-# VPC Configuration
-# Option 1: Provide VPC ID directly
-vpc_id = "vpc-0123456789abcdef0"
-
-# Option 2: Or lookup by tag name
-# vpc_tag_name = "main-vpc"
-
-# Subnet Configuration
-# Option 1: Provide subnet IDs directly
-private_subnet_ids = [
-  "subnet-0123456789abcdef0",
-  "subnet-0123456789abcdef1",
-  "subnet-0123456789abcdef2"
-]
-
-# Option 2: Or lookup by tags
-# private_subnet_tag_filter = {
-#   "Type" = "private"
-# }
+# VPC Configuration - Creates new VPC
+vpc_cidr = "10.0.0.0/16"
+az_count = 3  # Number of availability zones (2-6)
 
 # ECS Configuration
-ecs_cluster_name        = "drupal-dynamic-environments"
-ecs_instance_type       = "t3.medium"
-ecs_asg_min_size        = 1
-ecs_asg_max_size        = 10
+ecs_cluster_name         = "drupal-dynamic-environments"
+ecs_instance_type        = "t3.medium"
+ecs_asg_min_size         = 1
+ecs_asg_max_size         = 10
 ecs_asg_desired_capacity = 2
 spot_instance_percentage = 50
 
@@ -35,10 +19,6 @@ spot_instance_percentage = 50
 # Default: 8 PM ET (midnight UTC) to 7 AM ET (11 AM UTC)
 scale_to_zero_schedule = "0 0 * * *"  # midnight UTC
 scale_up_schedule      = "0 11 * * *" # 11 AM UTC
-
-# IAM Configuration
-# Replace with the actual IAM instance profile name provided by your Cloud Team
-ecs_instance_profile_name = "ecs-host-instance-profile"
 
 # Aurora Configuration
 aurora_engine_version           = "8.0.mysql_aurora.3.04.0"

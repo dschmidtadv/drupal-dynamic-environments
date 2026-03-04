@@ -2,7 +2,7 @@
 resource "aws_security_group" "aurora" {
   name_prefix = "${var.project_name}-aurora-"
   description = "Security group for Aurora Serverless cluster"
-  vpc_id      = data.aws_vpc.existing.id
+  vpc_id      = aws_vpc.main.id
 
   ingress {
     description     = "MySQL from ECS hosts"
@@ -33,7 +33,7 @@ resource "aws_security_group" "aurora" {
 resource "aws_db_subnet_group" "aurora" {
   name_prefix = "${var.project_name}-aurora-"
   description = "Subnet group for Aurora Serverless cluster"
-  subnet_ids  = local.subnet_ids
+  subnet_ids  = local.private_subnet_ids
 
   tags = {
     Name = "${var.project_name}-aurora"

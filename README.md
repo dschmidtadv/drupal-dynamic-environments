@@ -6,6 +6,7 @@ Terraform infrastructure for managing ephemeral and long-lasting Drupal environm
 
 This infrastructure creates:
 
+- **VPC with Networking**: Complete VPC with public/private subnets across multiple AZs, NAT Gateways, and Internet Gateway
 - **ECS Cluster**: EC2-based cluster with mixed On-Demand and Spot capacity
 - **Aurora Serverless v2**: MySQL-compatible database with auto-scaling (0.5-2 ACU)
 - **Application Load Balancer**: Wildcard routing to branch-specific environments
@@ -38,11 +39,10 @@ This infrastructure creates:
 
 ## Prerequisites
 
-1. **Existing VPC**: You must have a VPC with private subnets
-2. **IAM Instance Profile**: Cloud team must provide an ECS host instance profile
-3. **ACM Certificate** (optional): For HTTPS support on `*.review.example.gov`
-4. **Terraform**: >= 1.5.0
-5. **AWS CLI**: Configured with appropriate credentials
+1. **AWS Account**: With appropriate permissions to create VPC, EC2, RDS, S3, IAM resources
+2. **Terraform**: >= 1.5.0
+3. **AWS CLI**: Configured with appropriate credentials
+4. **ACM Certificate** (optional): For HTTPS support on `*.review.example.gov`
 
 ## Quick Start
 
@@ -56,9 +56,8 @@ cp terraform.tfvars.example terraform.tfvars
 
 Edit `terraform.tfvars` and set:
 
-- `vpc_id` or `vpc_tag_name`: Your existing VPC
-- `private_subnet_ids`: List of private subnet IDs
-- `ecs_instance_profile_name`: IAM instance profile from Cloud Team
+- `vpc_cidr`: CIDR block for the new VPC (default: `10.0.0.0/16`)
+- `az_count`: Number of availability zones to use (default: 3)
 - `wildcard_domain`: Your domain (e.g., `*.review.example.gov`)
 - `certificate_arn` (optional): ACM certificate for HTTPS
 
@@ -176,9 +175,8 @@ terraform destroy -target=module.branch_${BRANCH_NAME}
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `vpc_id` | Existing VPC ID | - |
-| `private_subnet_ids` | List of private subnet IDs | - |
-| `ecs_instance_profile_name` | IAM instance profile from Cloud Team | `ecs-host-instance-profile` |
+| `vpc_cidr` | CIDR block for VPC | `10.0.0.0/16` |
+| `az_count` | Number of availability zones | `3` |
 | `ecs_instance_type` | EC2 instance type | `t3.medium` |
 | `spot_instance_percentage` | Percentage of Spot instances | `50` |
 | `aurora_min_capacity` | Min Aurora ACUs | `0.5` |
@@ -272,12 +270,37 @@ Get the ALB DNS name:
 terraform output alb_dns_name
 ```
 
+## Network Architecture
+
+The infrastructure creates a complete VPC with the following components:
+
+### Subnets
+- **Public Subnets**: One per AZ (default: 3)
+  - Hosts the Application Load Balancer
+  - Direct internet access via Internet Gateway
+  - CIDR: `10.0.0.0/24`, `10.0.1.0/24`, `10.0.2.0/24`
+
+- **Private Subnets**: One per AZ (default: 3)
+  - Hosts ECS containers and Aurora database
+  - Internet access via NAT Gateways
+  - CIDR: `10.0.3.0/24`, `10.0.4.0/24`, `10.0.5.0/24`
+
+### Routing
+- **Internet Gateway**: For public subnet internet access
+- **NAT Gateways**: One per AZ for high availability
+- **Route Tables**: Separate routing for public and private subnets
+
+### VPC Flow Logs
+- Enabled by default to CloudWatch Logs
+- 7-day retention
+- Captures all accepted and rejected traffic
+
 ## Security Considerations
 
-1. **IAM Instance Profile**: Ensure the Cloud Team's instance profile has:
-   - `AmazonEC2ContainerServiceforEC2Role`
-   - CloudWatch Logs write permissions
-   - ECR pull permissions
+1. **IAM Roles**: Automatically created with least-privilege permissions:
+   - ECS Instance Role: EC2 container service access
+   - ECS Task Execution Role: Image pull and logging
+   - ECS Task Role: Application permissions (S3, Secrets Manager)
 
 2. **Database Credentials**: Stored in AWS Secrets Manager
    - Retrieve via: `aws secretsmanager get-secret-value --secret-id <arn>`
