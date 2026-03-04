@@ -6,7 +6,7 @@
       "label": "Internet Users",
       "x": 0,
       "y": 0,
-      "icon": "/icons/aws/general/internet.png"
+      "icon": "https://fd-infracodebase-v2-static-prd-hvdmeqbraxfjhdb9.z01.azurefd.net/public/icons/aws/general/internet.png"
     },
     {
       "id": "codebuild",
@@ -14,7 +14,7 @@
       "x": 1030,
       "y": 0,
       "subtitle": "CI/CD Pipeline",
-      "icon": "/icons/aws/devtools/codebuild.png"
+      "icon": "https://fd-infracodebase-v2-static-prd-hvdmeqbraxfjhdb9.z01.azurefd.net/public/icons/aws/devtools/codebuild.png"
     },
     {
       "id": "alb",
@@ -22,7 +22,7 @@
       "x": 1030,
       "y": 300,
       "subtitle": "*.review.example.gov",
-      "icon": "/icons/aws/network/elb-application-load-balancer.png"
+      "icon": "https://fd-infracodebase-v2-static-prd-hvdmeqbraxfjhdb9.z01.azurefd.net/public/icons/aws/network/elb-application-load-balancer.png"
     },
     {
       "id": "s3",
@@ -30,7 +30,7 @@
       "x": 0,
       "y": 1740,
       "subtitle": "Drupal Files",
-      "icon": "/icons/aws/storage/s3.png"
+      "icon": "https://fd-infracodebase-v2-static-prd-hvdmeqbraxfjhdb9.z01.azurefd.net/public/icons/aws/storage/s3.png"
     },
     {
       "id": "secrets",
@@ -38,36 +38,33 @@
       "x": 1030,
       "y": 1740,
       "subtitle": "DB Credentials",
-      "icon": "/icons/aws/security/secrets-manager.png"
+      "icon": "https://fd-infracodebase-v2-static-prd-hvdmeqbraxfjhdb9.z01.azurefd.net/public/icons/aws/security/secrets-manager.png"
     },
     {
       "id": "vpc",
       "label": "VPC",
-      "x": 220,
-      "y": 600,
+      "x": -229,
+      "y": -1009,
       "subtitle": "Existing VPC",
-      "icon": "/icons/aws/network/vpc.png",
+      "icon": "https://fd-infracodebase-v2-static-prd-hvdmeqbraxfjhdb9.z01.azurefd.net/public/icons/aws/network/vpc.png",
       "type": "container",
-      "width": 1740,
+      "width": 1756,
       "height": 990
     },
     {
       "id": "public-subnet",
       "label": "Public Subnets",
       "x": 90,
-      "y": 90,
-      "icon": "/icons/aws/network/public-subnet.png",
-      "type": "container",
-      "width": 300,
-      "height": 280,
+      "y": 501,
+      "icon": "https://fd-infracodebase-v2-static-prd-hvdmeqbraxfjhdb9.z01.azurefd.net/public/icons/aws/network/public-subnet.png",
       "parentId": "vpc"
     },
     {
       "id": "private-subnet",
       "label": "Private Subnets",
-      "x": 490,
+      "x": 506,
       "y": 90,
-      "icon": "/icons/aws/network/private-subnet.png",
+      "icon": "https://fd-infracodebase-v2-static-prd-hvdmeqbraxfjhdb9.z01.azurefd.net/public/icons/aws/network/private-subnet.png",
       "type": "container",
       "width": 1160,
       "height": 810,
@@ -79,7 +76,7 @@
       "x": 90,
       "y": 90,
       "subtitle": "drupal-dynamic-environments",
-      "icon": "/icons/aws/compute/elastic-container-service.png",
+      "icon": "https://fd-infracodebase-v2-static-prd-hvdmeqbraxfjhdb9.z01.azurefd.net/public/icons/aws/compute/elastic-container-service.png",
       "type": "container",
       "width": 520,
       "height": 630,
@@ -91,7 +88,7 @@
       "x": 90,
       "y": 90,
       "subtitle": "Base Capacity",
-      "icon": "/icons/aws/compute/ec2-instances.png",
+      "icon": "https://fd-infracodebase-v2-static-prd-hvdmeqbraxfjhdb9.z01.azurefd.net/public/icons/aws/compute/ec2-instances.png",
       "parentId": "ecs-cluster"
     },
     {
@@ -100,7 +97,7 @@
       "x": 310,
       "y": 90,
       "subtitle": "Ephemeral Workloads",
-      "icon": "/icons/aws/compute/ec2-instances.png",
+      "icon": "https://fd-infracodebase-v2-static-prd-hvdmeqbraxfjhdb9.z01.azurefd.net/public/icons/aws/compute/ec2-instances.png",
       "parentId": "ecs-cluster"
     },
     {
@@ -109,7 +106,7 @@
       "x": 90,
       "y": 390,
       "subtitle": "uat.review.example.gov",
-      "icon": "/icons/aws/compute/elastic-container-service-service.png",
+      "icon": "https://fd-infracodebase-v2-static-prd-hvdmeqbraxfjhdb9.z01.azurefd.net/public/icons/aws/compute/elastic-container-service-service.png",
       "parentId": "ecs-cluster"
     },
     {
@@ -118,7 +115,7 @@
       "x": 310,
       "y": 390,
       "subtitle": "feature-*.review.example.gov",
-      "icon": "/icons/aws/compute/elastic-container-service-service.png",
+      "icon": "https://fd-infracodebase-v2-static-prd-hvdmeqbraxfjhdb9.z01.azurefd.net/public/icons/aws/compute/elastic-container-service-service.png",
       "parentId": "ecs-cluster"
     },
     {
@@ -127,7 +124,7 @@
       "x": 950,
       "y": 90,
       "subtitle": "MySQL 8.0 (0.5-2 ACU)",
-      "icon": "/icons/aws/database/aurora.png",
+      "icon": "https://fd-infracodebase-v2-static-prd-hvdmeqbraxfjhdb9.z01.azurefd.net/public/icons/aws/database/aurora.png",
       "parentId": "private-subnet"
     }
   ],
