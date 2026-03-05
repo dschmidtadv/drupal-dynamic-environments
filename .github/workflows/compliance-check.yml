@@ -57,7 +57,7 @@ jobs:
 
           FAILED=0
           for rule in "${RULES[@]}"; do
-            if grep -q "$rule" COMPLIANCE.md; then
+            if grep -Eqi "$rule" COMPLIANCE.md; then
               echo "✅ Found: $rule"
             else
               echo "❌ Missing: $rule"
