@@ -209,7 +209,7 @@ jobs:
       - name: Run tfsec
         uses: aquasecurity/tfsec-action@v1.0.3
         with:
-          soft_fail: true
+          soft_fail: false
           format: sarif
           out: tfsec-results.sarif
 
