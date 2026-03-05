@@ -80,6 +80,12 @@ resource "aws_launch_template" "ecs_on_demand" {
     enabled = true
   }
 
+  metadata_options {
+    http_tokens                 = "required"
+    http_put_response_hop_limit = 1
+    http_endpoint               = "enabled"
+  }
+
   user_data = base64encode(<<-EOF
     #!/bin/bash
     echo ECS_CLUSTER=${aws_ecs_cluster.main.name} >> /etc/ecs/ecs.config
@@ -115,6 +121,12 @@ resource "aws_launch_template" "ecs_spot" {
 
   monitoring {
     enabled = true
+  }
+
+  metadata_options {
+    http_tokens                 = "required"
+    http_put_response_hop_limit = 1
+    http_endpoint               = "enabled"
   }
 
   instance_market_options {

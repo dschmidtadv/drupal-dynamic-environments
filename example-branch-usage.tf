@@ -32,10 +32,10 @@ module "branch_uat" {
   domain_suffix               = "review.example.gov"
 
   # Configuration
-  drupal_image   = "drupal:10-apache"
-  drupal_cpu     = 512
-  drupal_memory  = 1024
-  desired_count  = 2 # UAT should have at least 2 instances
+  drupal_image  = "drupal:10-apache"
+  drupal_cpu    = 512
+  drupal_memory = 1024
+  desired_count = 2 # UAT should have at least 2 instances
 
   listener_rule_priority = 10 # Lower priority = higher precedence
 
@@ -72,10 +72,10 @@ module "branch_feature_auth" {
   domain_suffix               = "review.example.gov"
 
   # Configuration
-  drupal_image   = "drupal:10-apache"
-  drupal_cpu     = 512
-  drupal_memory  = 1024
-  desired_count  = 1 # Feature branches can start with 1 instance
+  drupal_image  = "drupal:10-apache"
+  drupal_cpu    = 512
+  drupal_memory = 1024
+  desired_count = 1 # Feature branches can start with 1 instance
 
   listener_rule_priority = 100 # Each branch needs a unique priority
 
