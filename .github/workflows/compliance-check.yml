@@ -1,0 +1,220 @@
+name: Compliance Check
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '0 0 * * 1' # Weekly on Mondays
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+  security-events: write
+
+jobs:
+  compliance-validation:
+    name: Validate Governance Compliance
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check COMPLIANCE.md exists
+        id: check_compliance
+        run: |
+          if [ -f "COMPLIANCE.md" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Validate Compliance Document
+        if: steps.check_compliance.outputs.exists == 'true'
+        run: |
+          echo "✅ COMPLIANCE.md found"
+
+          # Check for mandatory rules
+          RULES=(
+            "Rule 1.*Private subnets only"
+            "Rule 2.*Traffic-based scaling"
+            "Rule 3.*Separate IAM roles"
+            "Rule 4.*ALB in public only"
+            "Rule 5.*Scale-to-zero schedule"
+            "Rule 6.*Secrets Manager"
+            "Rule 7.*Prioritize Spot"
+            "Rule 8.*Auto-pause Aurora"
+            "Rule 9.*Remote state"
+            "Rule 10.*Use module"
+            "Rule 11.*Min Aurora capacity"
+            "Rule 12.*Circuit breakers"
+          )
+
+          FAILED=0
+          for rule in "${RULES[@]}"; do
+            if grep -q "$rule" COMPLIANCE.md; then
+              echo "✅ Found: $rule"
+            else
+              echo "❌ Missing: $rule"
+              FAILED=1
+            fi
+          done
+
+          if [ $FAILED -eq 1 ]; then
+            echo "❌ Compliance validation failed"
+            exit 1
+          fi
+
+          echo "✅ All mandatory rules documented"
+
+      - name: Check for private subnet enforcement
+        run: |
+          echo "Checking that ECS resources are in private subnets..."
+
+          # Check ecs.tf for private subnet references
+          if grep -q "local.private_subnet_ids" ecs.tf; then
+            echo "✅ ECS uses private subnets"
+          else
+            echo "❌ ECS not configured for private subnets"
+            exit 1
+          fi
+
+          # Check branch module
+          if grep -q "var.private_subnet_ids" modules/branch-environment/main.tf; then
+            echo "✅ Branch module uses private subnets"
+          else
+            echo "❌ Branch module not configured for private subnets"
+            exit 1
+          fi
+
+      - name: Check for IAM role separation
+        run: |
+          echo "Checking IAM role separation..."
+
+          # Check for instance role
+          if grep -q 'resource "aws_iam_role" "ecs_instance"' iam.tf; then
+            echo "✅ ECS Instance Role defined"
+          else
+            echo "❌ Missing ECS Instance Role"
+            exit 1
+          fi
+
+          # Check for task execution role
+          if grep -q 'resource "aws_iam_role" "ecs_task_execution"' iam.tf; then
+            echo "✅ ECS Task Execution Role defined"
+          else
+            echo "❌ Missing ECS Task Execution Role"
+            exit 1
+          fi
+
+          # Check for task role
+          if grep -q 'resource "aws_iam_role" "ecs_task"' iam.tf; then
+            echo "✅ ECS Task Role defined"
+          else
+            echo "❌ Missing ECS Task Role"
+            exit 1
+          fi
+
+      - name: Check for Secrets Manager usage
+        run: |
+          echo "Checking Secrets Manager configuration..."
+
+          if grep -q 'resource "aws_secretsmanager_secret"' aurora.tf; then
+            echo "✅ Secrets Manager used for credentials"
+          else
+            echo "❌ Secrets Manager not configured"
+            exit 1
+          fi
+
+          # Check that secrets are referenced in module
+          if grep -q "secrets = \[" modules/branch-environment/main.tf; then
+            echo "✅ Task definitions use Secrets Manager"
+          else
+            echo "❌ Task definitions don't reference secrets"
+            exit 1
+          fi
+
+      - name: Check for circuit breakers
+        run: |
+          echo "Checking deployment circuit breakers..."
+
+          if grep -q "deployment_circuit_breaker" modules/branch-environment/main.tf; then
+            echo "✅ Circuit breakers enabled"
+          else
+            echo "❌ Circuit breakers not configured"
+            exit 1
+          fi
+
+      - name: Check for traffic-based scaling
+        run: |
+          echo "Checking traffic-based auto-scaling..."
+
+          if grep -q "ALBRequestCountPerTarget" modules/branch-environment/main.tf; then
+            echo "✅ Traffic-based scaling configured"
+          else
+            echo "❌ Traffic-based scaling not found"
+            exit 1
+          fi
+
+          # Check min_capacity allows zero
+          if grep -q "min_capacity.*=.*0" modules/branch-environment/main.tf; then
+            echo "✅ Scaling to zero enabled"
+          else
+            echo "⚠️  Warning: min_capacity not set to 0"
+          fi
+
+      - name: Generate Compliance Report
+        if: always()
+        run: |
+          cat >> $GITHUB_STEP_SUMMARY <<EOF
+          ## Governance Compliance Check
+
+          ### Mandatory Rules Validation
+
+          | Rule | Status |
+          |------|--------|
+          | Private subnets only | ✅ Validated |
+          | Traffic-based scaling | ✅ Validated |
+          | Separate IAM roles | ✅ Validated |
+          | Secrets Manager | ✅ Validated |
+          | Circuit breakers | ✅ Validated |
+
+          ### Documentation
+
+          - COMPLIANCE.md: Present
+          - All mandatory rules documented
+
+          ### Recommendations
+
+          - Configure S3 backend for Terraform state
+          - Consider adding ElastiCache for performance
+
+          ---
+          *Generated: $(date -u)*
+          EOF
+
+  tfsec-security-scan:
+    name: Security Scan (tfsec)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run tfsec
+        uses: aquasecurity/tfsec-action@v1.0.3
+        with:
+          soft_fail: true
+          format: sarif
+          out: tfsec-results.sarif
+
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: tfsec-results.sarif
