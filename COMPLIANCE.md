@@ -1,6 +1,6 @@
 # Governance & Compliance Validation
 
-This document validates the Drupal Dynamic Branch Environments infrastructure against the mandatory governance rules.
+This document validates the Drupal Dynamic Branch Environments infrastructure against the mandatory governance rules. 
 
 ## Mandatory Rules Compliance
 
