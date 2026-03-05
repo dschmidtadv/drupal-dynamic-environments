@@ -101,7 +101,7 @@ resource "aws_appautoscaling_policy" "drupal_alb_requests" {
 
 ---
 
-### ✅ Rule 4: Restrict public subnet access to ALB only
+### ✅ Rule 4: Restrict public subnet access to ALB in public only
 
 **Status**: COMPLIANT
 
@@ -118,7 +118,7 @@ resource "aws_appautoscaling_policy" "drupal_alb_requests" {
 
 ---
 
-### ✅ Rule 5: Implement Scale-to-Zero scheduling for non-production
+### ✅ Rule 5: Implement Scale-to-zero schedule for non-production
 
 **Status**: COMPLIANT
 
@@ -214,7 +214,7 @@ resource "aws_autoscaling_schedule" "scale_up_on_demand" {
 
 ---
 
-### ✅ Rule 8: Enable auto-pause for non-persistent database clusters
+### ✅ Rule 8: Enable Auto-pause Aurora for non-persistent database clusters
 
 **Status**: COMPLIANT
 
