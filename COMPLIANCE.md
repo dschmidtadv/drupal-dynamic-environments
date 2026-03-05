@@ -239,7 +239,7 @@ resource "aws_rds_cluster" "aurora" {
 
 ---
 
-### ✅ Rule 9: Store Terraform state in remote S3 backend
+### ✅ Rule 9: Remote state
 
 **Status**: NOT IMPLEMENTED (Expected user action)
 
@@ -263,7 +263,7 @@ terraform {
 
 ---
 
-### ✅ Rule 10: Use branch-environment module for deployments
+### ✅ Rule 10: Use module
 
 **Status**: COMPLIANT
 
@@ -280,7 +280,7 @@ terraform {
 
 ---
 
-### ✅ Rule 11: Use Aurora Serverless v2 with minimum capacity
+### ✅ Rule 11: Min Aurora capacity
 
 **Status**: COMPLIANT
 
@@ -297,7 +297,7 @@ aurora_max_capacity = 2
 
 ---
 
-### ✅ Rule 12: Enable ECS deployment circuit breakers
+### ✅ Rule 12: Circuit breakers
 
 **Status**: COMPLIANT
 
