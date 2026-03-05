@@ -30,7 +30,7 @@ db_master_username              = "drupaladmin"
 
 # ALB Configuration
 alb_name        = "drupal-dynamic-alb"
-wildcard_domain = "*.review.example.gov"
+wildcard_domain = "*.drupal-app.dietrichschmidt.com"
 
 # Optional: Provide ACM certificate ARN for HTTPS
 # certificate_arn = "arn:aws:acm:us-east-1:123456789012:certificate/12345678-1234-1234-1234-123456789012"
