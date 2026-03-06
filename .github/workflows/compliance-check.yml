@@ -206,7 +206,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Run tfsec
+      - name: Run tfsec for SARIF report
         uses: aquasecurity/tfsec-action@v1.0.3
         with:
           soft_fail: true
@@ -214,18 +214,15 @@ jobs:
           out: tfsec-results.sarif
         continue-on-error: false
 
-      - name: Check if SARIF file exists
-        id: check_sarif
-        run: |
-          if [ -f "tfsec-results.sarif" ]; then
-            echo "exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "exists=false" >> $GITHUB_OUTPUT
-            echo "⚠️ tfsec-results.sarif not generated"
-          fi
-
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v4
-        if: steps.check_sarif.outputs.exists == 'true'
+        if: always()
+        continue-on-error: true
         with:
           sarif_file: tfsec-results.sarif
+
+      - name: Run tfsec (blocking check)
+        uses: aquasecurity/tfsec-action@v1.0.3
+        with:
+          soft_fail: false
+          additional_args: --minimum-severity MEDIUM
