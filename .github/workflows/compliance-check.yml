@@ -212,7 +212,7 @@ jobs:
           soft_fail: true
           format: sarif
           out: tfsec-results.sarif
-        continue-on-error: true
+        continue-on-error: false
 
       - name: Check if SARIF file exists
         id: check_sarif
