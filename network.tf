@@ -129,6 +129,7 @@ resource "aws_route_table_association" "private" {
 resource "aws_cloudwatch_log_group" "vpc_flow_logs" {
   name              = "/aws/vpc/${var.project_name}"
   retention_in_days = 7
+  kms_key_id        = aws_kms_key.cloudwatch.arn
 
   tags = {
     Name = "${var.project_name}-vpc-flow-logs"

@@ -13,6 +13,7 @@ locals {
 resource "aws_cloudwatch_log_group" "branch" {
   name              = "/ecs/${local.env_identifier}"
   retention_in_days = 7
+  kms_key_id        = var.cloudwatch_kms_key_arn
 
   tags = merge(
     var.tags,

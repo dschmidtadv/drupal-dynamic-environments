@@ -52,6 +52,7 @@ resource "aws_secretsmanager_secret" "aurora_master_password" {
   name_prefix             = "${var.project_name}-aurora-master-"
   description             = "Aurora master password for Drupal"
   recovery_window_in_days = 7
+  kms_key_id              = aws_kms_key.secrets.arn
 
   tags = {
     Name = "${var.project_name}-aurora-master-password"

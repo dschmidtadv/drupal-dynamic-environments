@@ -29,6 +29,7 @@ module "branch_uat" {
   aurora_database_name        = aws_rds_cluster.aurora.database_name
   aurora_secret_arn           = aws_secretsmanager_secret.aurora_master_password.arn
   s3_bucket_name              = aws_s3_bucket.drupal_files.id
+  cloudwatch_kms_key_arn      = aws_kms_key.cloudwatch.arn
   domain_suffix               = "review.example.gov"
 
   # Configuration
@@ -69,6 +70,7 @@ module "branch_feature_auth" {
   aurora_database_name        = aws_rds_cluster.aurora.database_name
   aurora_secret_arn           = aws_secretsmanager_secret.aurora_master_password.arn
   s3_bucket_name              = aws_s3_bucket.drupal_files.id
+  cloudwatch_kms_key_arn      = aws_kms_key.cloudwatch.arn
   domain_suffix               = "review.example.gov"
 
   # Configuration
