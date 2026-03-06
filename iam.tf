@@ -84,19 +84,7 @@ resource "aws_iam_role_policy" "ecs_task_execution_secrets" {
           "secretsmanager:GetSecretValue",
           "secretsmanager:DescribeSecret"
         ]
-        Resource = "${aws_secretsmanager_secret.aurora_master_password.arn}"
-      },
-      {
-        Effect = "Allow"
-        Action = [
-          "kms:Decrypt"
-        ]
-        Resource = "*"
-        Condition = {
-          StringEquals = {
-            "kms:ViaService" = "secretsmanager.${var.aws_region}.amazonaws.com"
-          }
-        }
+        Resource = aws_secretsmanager_secret.aurora_master_password.arn
       }
     ]
   })
@@ -164,19 +152,7 @@ resource "aws_iam_role_policy" "ecs_task_secrets" {
           "secretsmanager:GetSecretValue",
           "secretsmanager:DescribeSecret"
         ]
-        Resource = "${aws_secretsmanager_secret.aurora_master_password.arn}"
-      },
-      {
-        Effect = "Allow"
-        Action = [
-          "kms:Decrypt"
-        ]
-        Resource = "*"
-        Condition = {
-          StringEquals = {
-            "kms:ViaService" = "secretsmanager.${var.aws_region}.amazonaws.com"
-          }
-        }
+        Resource = aws_secretsmanager_secret.aurora_master_password.arn
       }
     ]
   })

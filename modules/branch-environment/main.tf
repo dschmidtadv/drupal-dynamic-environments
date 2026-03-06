@@ -13,6 +13,7 @@ locals {
 resource "aws_cloudwatch_log_group" "branch" {
   name              = "/ecs/${local.env_identifier}"
   retention_in_days = 7
+  kms_key_id        = var.cloudwatch_kms_key_arn
 
   tags = merge(
     var.tags,
@@ -235,7 +236,7 @@ resource "aws_ecs_service" "drupal" {
 # Auto Scaling Target
 resource "aws_appautoscaling_target" "drupal" {
   max_capacity       = 5
-  min_capacity       = 0  # Allow scaling to zero when no traffic
+  min_capacity       = 0 # Allow scaling to zero when no traffic
   resource_id        = "service/${var.ecs_cluster_name}/${aws_ecs_service.drupal.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
@@ -293,8 +294,8 @@ resource "aws_appautoscaling_policy" "drupal_alb_requests" {
     target_value = 10.0 # Target 10 requests per minute per task
 
     # Scale in aggressively when no traffic
-    scale_in_cooldown  = 300  # 5 minutes of low traffic before scaling down
-    scale_out_cooldown = 60   # Scale out quickly when traffic arrives
+    scale_in_cooldown  = 300 # 5 minutes of low traffic before scaling down
+    scale_out_cooldown = 60  # Scale out quickly when traffic arrives
   }
 }
 

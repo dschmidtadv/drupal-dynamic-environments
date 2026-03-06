@@ -206,15 +206,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Run tfsec
-        uses: aquasecurity/tfsec-action@v1.0.3
-        with:
-          soft_fail: true
-          format: sarif
-          out: tfsec-results.sarif
+      - name: Install tfsec
+        run: |
+          curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash
+          tfsec --version
+
+      - name: Run tfsec for SARIF report
+        run: |
+          tfsec . --format sarif --out tfsec-results.sarif --soft-fail
+        continue-on-error: true
 
       - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
+        continue-on-error: true
         with:
           sarif_file: tfsec-results.sarif
+
+      - name: Run tfsec (blocking check)
+        run: |
+          tfsec . --minimum-severity MEDIUM

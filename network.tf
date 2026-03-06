@@ -30,7 +30,7 @@ resource "aws_subnet" "public" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = cidrsubnet(var.vpc_cidr, 8, count.index)
   availability_zone       = data.aws_availability_zones.available.names[count.index]
-  map_public_ip_on_launch = true
+  map_public_ip_on_launch = false
 
   tags = {
     Name = "${var.project_name}-public-${data.aws_availability_zones.available.names[count.index]}"
@@ -129,6 +129,7 @@ resource "aws_route_table_association" "private" {
 resource "aws_cloudwatch_log_group" "vpc_flow_logs" {
   name              = "/aws/vpc/${var.project_name}"
   retention_in_days = 7
+  kms_key_id        = aws_kms_key.cloudwatch.arn
 
   tags = {
     Name = "${var.project_name}-vpc-flow-logs"
@@ -166,13 +167,11 @@ resource "aws_iam_role_policy" "vpc_flow_logs" {
       {
         Effect = "Allow"
         Action = [
-          "logs:CreateLogGroup",
           "logs:CreateLogStream",
           "logs:PutLogEvents",
-          "logs:DescribeLogGroups",
           "logs:DescribeLogStreams"
         ]
-        Resource = "*"
+        Resource = "${aws_cloudwatch_log_group.vpc_flow_logs.arn}:*"
       }
     ]
   })

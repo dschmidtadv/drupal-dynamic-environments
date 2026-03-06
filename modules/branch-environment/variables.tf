@@ -123,6 +123,11 @@ variable "listener_rule_priority" {
   type        = number
 }
 
+variable "cloudwatch_kms_key_arn" {
+  description = "ARN of the KMS key for CloudWatch Logs encryption"
+  type        = string
+}
+
 variable "tags" {
   description = "Tags to apply to resources"
   type        = map(string)

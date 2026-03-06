@@ -52,6 +52,7 @@ resource "aws_secretsmanager_secret" "aurora_master_password" {
   name_prefix             = "${var.project_name}-aurora-master-"
   description             = "Aurora master password for Drupal"
   recovery_window_in_days = 7
+  kms_key_id              = aws_kms_key.secrets.arn
 
   tags = {
     Name = "${var.project_name}-aurora-master-password"
@@ -81,15 +82,16 @@ resource "aws_rds_cluster" "aurora" {
   master_password        = random_password.aurora_master.result
   db_subnet_group_name   = aws_db_subnet_group.aurora.name
   vpc_security_group_ids = [aws_security_group.aurora.id]
+  storage_encrypted      = true
 
   serverlessv2_scaling_configuration {
     min_capacity = var.aurora_min_capacity
     max_capacity = var.aurora_max_capacity
   }
 
-  backup_retention_period = 7
-  preferred_backup_window = "03:00-04:00"
-  skip_final_snapshot     = false
+  backup_retention_period   = 7
+  preferred_backup_window   = "03:00-04:00"
+  skip_final_snapshot       = false
   final_snapshot_identifier = "${var.project_name}-aurora-final-snapshot-${formatdate("YYYY-MM-DD-hhmm", timestamp())}"
 
   enabled_cloudwatch_logs_exports = ["error", "general", "slowquery"]
@@ -111,7 +113,8 @@ resource "aws_rds_cluster_instance" "aurora" {
   engine             = aws_rds_cluster.aurora.engine
   engine_version     = aws_rds_cluster.aurora.engine_version
 
-  performance_insights_enabled = true
+  performance_insights_enabled    = true
+  performance_insights_kms_key_id = aws_kms_key.rds.arn
 
   tags = {
     Name = "${var.project_name}-aurora-instance"

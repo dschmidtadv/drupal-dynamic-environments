@@ -29,13 +29,14 @@ module "branch_uat" {
   aurora_database_name        = aws_rds_cluster.aurora.database_name
   aurora_secret_arn           = aws_secretsmanager_secret.aurora_master_password.arn
   s3_bucket_name              = aws_s3_bucket.drupal_files.id
+  cloudwatch_kms_key_arn      = aws_kms_key.cloudwatch.arn
   domain_suffix               = "review.example.gov"
 
   # Configuration
-  drupal_image   = "drupal:10-apache"
-  drupal_cpu     = 512
-  drupal_memory  = 1024
-  desired_count  = 2 # UAT should have at least 2 instances
+  drupal_image  = "drupal:10-apache"
+  drupal_cpu    = 512
+  drupal_memory = 1024
+  desired_count = 2 # UAT should have at least 2 instances
 
   listener_rule_priority = 10 # Lower priority = higher precedence
 
@@ -69,13 +70,14 @@ module "branch_feature_auth" {
   aurora_database_name        = aws_rds_cluster.aurora.database_name
   aurora_secret_arn           = aws_secretsmanager_secret.aurora_master_password.arn
   s3_bucket_name              = aws_s3_bucket.drupal_files.id
+  cloudwatch_kms_key_arn      = aws_kms_key.cloudwatch.arn
   domain_suffix               = "review.example.gov"
 
   # Configuration
-  drupal_image   = "drupal:10-apache"
-  drupal_cpu     = 512
-  drupal_memory  = 1024
-  desired_count  = 1 # Feature branches can start with 1 instance
+  drupal_image  = "drupal:10-apache"
+  drupal_cpu    = 512
+  drupal_memory = 1024
+  desired_count = 1 # Feature branches can start with 1 instance
 
   listener_rule_priority = 100 # Each branch needs a unique priority
 
