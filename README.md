@@ -381,7 +381,9 @@ Check:
 
 ## License
 
-This project is provided as-is for infrastructure management.
+Copyright (C) 2026 Dietrich Gottfried Schmidt
+
+GNU General Public License v3.0 — See [LICENSE](LICENSE) file for details.
 
 ## Support
 
